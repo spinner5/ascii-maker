@@ -72,9 +72,3 @@ async function loadImage() {
 
 loadImage();
 
-// TODO:
-// print in matrix green
-// implement min/max and luminosity brightness mappings
-// option to invert all brightness
-// print pictures from webcam
-// print ascii in glorious color
