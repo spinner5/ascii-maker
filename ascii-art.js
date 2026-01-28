@@ -1,11 +1,14 @@
 import { read, write } from "image-js";
+import readline from "node:readline";
 
 async function loadImage() {
   try {
-    const parsedImage = await read("./pepe.jpg");
+    const imagePath = "./car.jpg";
+    const parsedImage = await read(imagePath);
     const height = parsedImage.height;
     const width = parsedImage.width;
     console.log("Successfully loaded image!");
+    console.log(`Image file: ${imagePath.slice(2)}`);
     console.log(`Image size: ${height} x ${width}`);
 
     const pixelValues = [];
@@ -14,8 +17,8 @@ async function loadImage() {
         pixelValues.push(parsedImage.getPixel(column, row));
       }
     }
-    console.log("Converted to pixels");
-    console.log(pixelValues.join(""));
+    // console.log("Converted to pixels");
+    // console.log(pixelValues.join(""));
 
     const brightnessValues = [];
     for (const pixel of pixelValues) {
@@ -24,25 +27,44 @@ async function loadImage() {
       );
       brightnessValues.push(brightness);
     }
-    console.log("Converted to brightness");
-    console.log(brightnessValues);
+    // console.log("Converted to brightness");
+    // console.log(brightnessValues);
 
     // left darkest
     const symbols =
       '`^",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$';
-    const asciiImage = [];
+    const asciiChars = [];
     for (const brightness of brightnessValues) {
       const symbolIndex = Math.round((brightness / 255) * (symbols.length - 1));
-      asciiImage.push(symbols[symbolIndex]);
+      asciiChars.push(symbols[symbolIndex]);
     }
     console.log("Converted to symbols");
 
-    const asciiRows = [];
-    for (let i = 0; i < brightnessValues.length; i += width) {
-      const row = asciiImage.slice(i, i + width);
-      asciiRows.push(row.map((c) => c.repeat(3)).join(""));
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    let print = false;
+    rl.question("Print image? (y/yes)", (answer) => {
+      if (answer === "y" || answer === "yes") {
+        printAscii();
+      } else {
+        console.log("Operation canceled.");
+      }
+
+      rl.close();
+    });
+
+    function printAscii() {
+      for (let i = 0; i < height; i++) {
+        const row = asciiChars
+          .slice(i * width, (i + 1) * width)
+          .map((c) => c.repeat(2))
+          .join("");
+        console.log(row);
+      }
     }
-    console.log(asciiRows.join("\n"));
   } catch (err) {
     console.error(err);
   }
